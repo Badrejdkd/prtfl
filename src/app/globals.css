@@ -1,0 +1,284 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: 248 250 252;
+  --surface: 255 255 255;
+  --ink: 15 23 42;
+  --muted: 82 94 115;
+  --line: 226 232 240;
+  --accent: 29 78 216;
+  --accent-soft: 230 237 255;
+  --navy: 11 22 46;
+  --on-accent: 255 255 255;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --paper: 8 13 26;
+  --surface: 15 23 41;
+  --ink: 232 237 246;
+  --muted: 148 160 182;
+  --line: 34 45 68;
+  --accent: 110 160 255;
+  --accent-soft: 22 36 70;
+  --navy: 15 26 52;
+  --on-accent: 8 13 26;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: 8 13 26;
+    --surface: 15 23 41;
+    --ink: 232 237 246;
+    --muted: 148 160 182;
+    --line: 34 45 68;
+    --accent: 110 160 255;
+    --accent-soft: 22 36 70;
+    --navy: 15 26 52;
+  --on-accent: 8 13 26;
+    color-scheme: dark;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  @apply bg-paper text-ink font-sans antialiased;
+}
+
+::selection {
+  background: rgb(var(--accent) / 0.2);
+}
+
+/* Subtle technical grid used in the hero */
+.grid-bg {
+  background-image:
+    linear-gradient(rgb(var(--ink) / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--ink) / 0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 40%, transparent 100%);
+}
+
+.grain {
+  background-image: radial-gradient(rgb(var(--ink) / 0.06) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* =====================================================================
+   ANIMATIONS
+   ===================================================================== */
+
+/* Floating gradient blobs */
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -30px) scale(1.08); }
+  66% { transform: translate(-30px, 25px) scale(0.95); }
+}
+.animate-blob { animation: blob 16s ease-in-out infinite; }
+.animate-blob-slow { animation: blob 22s ease-in-out infinite reverse; }
+
+/* Moving grid */
+@keyframes grid-pan {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 48px 48px, 48px 48px; }
+}
+.grid-bg { animation: grid-pan 6s linear infinite; }
+
+/* Animated gradient text */
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.text-gradient {
+  background-image: linear-gradient(90deg, rgb(var(--accent)), #7c3aed, #06b6d4, rgb(var(--accent)));
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-x 6s ease-in-out infinite;
+}
+
+/* Rotating words (CSS only) */
+.word-rotator {
+  display: inline-grid;
+  height: 1.4em;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.word-rotator > span {
+  grid-area: 1 / 1;
+  animation: word-cycle 12s infinite;
+  opacity: 0;
+  transform: translateY(100%);
+}
+.word-rotator > span:nth-child(2) { animation-delay: 3s; }
+.word-rotator > span:nth-child(3) { animation-delay: 6s; }
+.word-rotator > span:nth-child(4) { animation-delay: 9s; }
+@keyframes word-cycle {
+  0% { opacity: 0; transform: translateY(100%); }
+  4%, 21% { opacity: 1; transform: translateY(0); }
+  25%, 100% { opacity: 0; transform: translateY(-100%); }
+}
+
+/* Float (business card) */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-float { animation: float 6s ease-in-out infinite; }
+
+/* Rotating gradient border */
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes spin-angle { to { --angle: 360deg; } }
+.border-animated {
+  position: relative;
+  isolation: isolate;
+}
+.border-animated::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(from var(--angle), transparent 60%, rgb(var(--accent)), #06b6d4, transparent 95%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: spin-angle 5s linear infinite;
+}
+
+/* Shine sweep on buttons */
+.btn-shine { position: relative; overflow: hidden; }
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%) skewX(-20deg);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.35), transparent);
+  transition: transform 0.7s ease;
+}
+.btn-shine:hover::after { transform: translateX(120%) skewX(-20deg); }
+
+/* Infinite marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track { animation: marquee 40s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee {
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+/* Card spotlight that follows the mouse (--x / --y set by JS) */
+.spotlight {
+  position: relative;
+  overflow: hidden;
+}
+.spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(420px circle at var(--x, 50%) var(--y, 50%), rgb(var(--accent) / 0.1), transparent 45%);
+}
+.spotlight:hover::after { opacity: 1; }
+
+/* Icon wiggle on card hover */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-10deg) scale(1.08); }
+  75% { transform: rotate(10deg) scale(1.08); }
+}
+.group:hover .group-hover-wiggle { animation: wiggle 0.6s ease; }
+
+/* Timeline line draws in */
+@keyframes draw-y {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+.timeline-line {
+  transform-origin: top;
+  animation: draw-y 1.6s ease-out both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 45%;
+}
+
+/* Pulsing dot */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgb(var(--accent) / 0.5); }
+  100% { box-shadow: 0 0 0 12px rgb(var(--accent) / 0); }
+}
+.pulse-dot { animation: pulse-ring 1.8s ease-out infinite; }
+
+/* Tags pop in with stagger */
+.reveal.is-visible .tag-pop > * {
+  animation: tag-pop 0.45s ease both;
+}
+@keyframes tag-pop {
+  from { opacity: 0; transform: translateY(6px) scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+.tag-pop > *:nth-child(2) { animation-delay: 40ms; }
+.tag-pop > *:nth-child(3) { animation-delay: 80ms; }
+.tag-pop > *:nth-child(4) { animation-delay: 120ms; }
+.tag-pop > *:nth-child(5) { animation-delay: 160ms; }
+.tag-pop > *:nth-child(6) { animation-delay: 200ms; }
+.tag-pop > *:nth-child(7) { animation-delay: 240ms; }
+.tag-pop > *:nth-child(8) { animation-delay: 280ms; }
+.tag-pop > *:nth-child(9) { animation-delay: 320ms; }
+.tag-pop > *:nth-child(n+10) { animation-delay: 360ms; }
+
+/* Animated contact background */
+@keyframes aurora {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(60px, -40px) rotate(20deg); }
+}
+.animate-aurora { animation: aurora 14s ease-in-out infinite; }
+
+/* Scroll progress bar */
+.scroll-progress {
+  transform-origin: left;
+  transform: scaleX(var(--progress, 0));
+}
+
+/* Image zoom on project hover */
+.group:hover .zoom-img img { transform: scale(1.06); }
+.zoom-img img { transition: transform 0.7s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob, .animate-blob-slow, .grid-bg, .text-gradient, .animate-float, .border-animated::before,
+  .marquee-track, .pulse-dot, .animate-aurora, .timeline-line, .reveal.is-visible .tag-pop > *,
+  .word-rotator > span {
+    animation: none !important;
+  }
+  .word-rotator > span:first-child { opacity: 1; transform: none; }
+}
